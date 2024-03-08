@@ -3,6 +3,7 @@ import models from "../model/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import auth from "../middleware/authMiddleware.js";
+import nodemailer from "nodemailer";
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ router.post("/register", async (req, res) => {
       .status(201)
       .header("auth-token", token)
       .send({
-        message: `User "${user.username}" has been registered successfully!`,
+        message: `User ${user.username} has been registered successfully!`,
         token,
         user: savedUser,
       });
@@ -37,8 +38,14 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const user = await userModel.findOne({ username: req.body.username });
+  const user = await userModel.findOne({
+    $or: [{ email: req.body.username }, { username: req.body.username }],
+  });
   if (!user) return res.status(404).send("User not found 404!");
+
+  if (!user.verified) {
+    return res.status(400).send(`User ${user.username} has not been verified!`);
+  }
 
   // compare the password
   const validPass = await bcrypt.compare(req.body.password, user.password);
@@ -68,44 +75,113 @@ router.post("/logout", async (req, res) => {
   }
 });
 
-// Register with phone number OTP
-// router.post("/register/phone", async (req, res) => {
-//   const { username, phoneNumber } = req.body;
-//   const otp = Math.floor(100000 + Math.random() * 900000);
-//   const user = new userOTPModel({
-//     username,
-//     phoneNumber,
-//     otp,
-//   });
-//   try {
-//     const savedOTP = await user.save();
-//     client.messages
-//       .create({
-//         body: `Your OTP is: ${otp}`,
-//         from: process.env.TWILIO_PHONE_NUMBER,
-//         to: `+${phoneNumber}`,
-//       })
-//       .then((message) => {
-//         res.send({
-//           message: `OTP sent to ${phoneNumber}`,
-//           messageID: message.sid,
-//         });
-//       });
-//   } catch (error) {
-//     res.status(500).send(`Registration failed: ${error}`);
-//   }
-// });
+// Send OTP
+router.post("/email-otp", async (req, res) => {
+  const { email } = req.body;
 
-// // Verify OTP
-// router.post("/verify/phone", async (req, res) => {
-//   const { phoneNumber, otp } = req.body;
-//   const user = await userOTPModel.findOne({ phoneNumber, otp });
-//   if (!user) return res.status(404).send("User not found 404!");
-//   res.send({
-//     message: `Phone number verified successfully!`,
-//     user,
-//   });
-// });
+  // Check if user is registered
+  const users = await userModel.findOne({ email });
+
+  if (!users) {
+    return res.status(404).send("Email not found 404!");
+  }
+
+  // Generate OTP
+  const otp = Math.floor(100000 + Math.random() * 900000);
+  const user = new userOTPModel({
+    userId: users._id, // store reference to the user
+    email: users.email,
+    otp,
+  });
+
+  // Save OTP to the database
+  try {
+    const savedOTP = await user.save();
+
+    // create reusable transporter object using the default SMTP transport
+    let transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false, // true for 465, false for other ports
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    // send mail with defined transport object
+    let info = await transporter.sendMail({
+      from: process.env.EMAIL_USER, // sender address
+      to: email, // list of receivers
+      subject: "OTP for Email Verification", // Subject line
+      html: `
+        <div style="font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2">
+          <div style="margin:50px auto;width:70%;padding:20px 0">
+            <div style="border-bottom:1px solid #eee">
+              <a href="" style="font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600">E-attendance</a>
+            </div>
+            <p style="font-size:1.1em">Hi, ${users.username} !</p>
+            <p>Thank you for choosing E-attendance. Use the following OTP to complete your Sign Up procedures. OTP is valid for 5 minutes</p>
+            <h2 style="background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;">${otp}</h2>
+            <p style="font-size:0.9em;">Regards,<br />E-attendance</p>
+            <hr style="border:none;border-top:1px solid #eee" />
+            <div style="float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300">
+              <p>E-attendance</p>
+              <p>Royal University of Phnom Penh</p>
+              <p>Phnom Penh</p>
+            </div>
+          </div>
+        </div>
+      `, // plain text body
+    });
+
+    res.send({
+      message: `OTP sent to ${email}`,
+      messageId: info.messageId,
+      savedOTP,
+    });
+  } catch (error) {
+    res.status(500).send(`Sending OTP failed: ${error}`);
+  }
+});
+
+// Verify OTP
+router.post("/verify-otp", async (req, res) => {
+  const { email, otp } = req.body;
+
+  // Find OTP document for the user
+  const userOTP = await userOTPModel.findOne({ email });
+
+  if (!userOTP) {
+    return res.status(404).send("OTP not found 404!");
+  }
+
+  // Check if OTP is valid
+  if (userOTP.otp !== otp) {
+    return res.status(400).send("Invalid OTP 400!");
+  }
+
+  // Check if OTP is expired
+  const currentTime = new Date();
+  const otpTime = userOTP.createdAt;
+  const timeDiff = Math.abs(currentTime - otpTime);
+  const minutes = Math.floor(timeDiff / 60000);
+  if (minutes > 5) {
+    return res.status(400).send("OTP expired 400!");
+  }
+
+  // If the OTP is match, complete the registration
+  const user = await userModel.findOne({ email });
+  if (!user) {
+    return res.status(404).send("User not found 404!");
+  } else {
+    user.verified = true;
+    await user.save();
+    res.status(200).send({
+      message: `User ${user.username} has been verified successfully!`,
+    });
+  }
+});
 
 router.get("/protected", auth, async (req, res) => {
   // This code will only be reached if the token is valid

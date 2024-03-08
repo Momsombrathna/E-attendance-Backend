@@ -36,19 +36,4 @@ router.delete("/:id", (req, res) => {
   res.send("Delete from database at id: " + req.params.id);
 });
 
-router.post("/register", async (req, res) => {
-  const user = new userModel({
-    username: req.body.username,
-    password: req.body.password,
-    email: req.body.email,
-    role: req.body.role,
-  });
-  try {
-    const savedUser = await user.save();
-    res.send(savedUser);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
-
 export default router;
