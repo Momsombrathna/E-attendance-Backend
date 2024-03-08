@@ -1,14 +1,14 @@
 import express from "express";
-import userRouter from "./src/routes/user.js";
-import authRouter from "./src/routes/auth.js";
-import adminRouter from "./src/routes/admin.js";
+import userRouter from "./routes/user.js";
+import authRouter from "./routes/auth.js";
+import adminRouter from "./routes/admin.js";
 import dotenv from "dotenv";
 
 // Load environment variables
 dotenv.config();
 
 // Database
-import("./src/db/database.js");
+import("./db/database.js");
 
 const app = express();
 const port = process.env.PORT || 5176;
