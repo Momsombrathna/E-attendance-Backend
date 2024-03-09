@@ -1,35 +1,29 @@
 import express from "express";
-import userModel from "../model/userModel.js";
+import model from "../model/userModel.js";
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.send({
-    data: [
-      {
-        id: 1,
-        name: "John Doe",
-        age: 21,
-      },
-      {
-        id: 2,
-        name: "Jane Doe",
-        age: 22,
-      },
-    ],
-  });
-});
+const { userModel } = model;
 
-router.get("/:id", (req, res) => {
-  res.send("This user id: " + req.params.id);
-});
+// Update the user
+router.put("/update/:id", async (req, res) => {
+  const { username, profile } = req.body;
 
-router.post("/", (req, res) => {
-  res.send("This is post request");
-});
+  try {
+    const user = await userModel.findByIdAndUpdate(
+      req.params.id,
+      { username, profile },
+      { new: true }
+    );
 
-router.patch("/:id", (req, res) => {
-  res.send("This is id from server: " + req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.send(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.delete("/:id", (req, res) => {
