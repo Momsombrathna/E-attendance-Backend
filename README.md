@@ -1,10 +1,10 @@
-# E-attendance-Backend
+## E-attendance-Backend
 
-## Node.js
+# Node.js
 
-## MongoDB
+# MongoDB
 
-## Express js
+# Express js
 
 ## Project set up
 
@@ -14,22 +14,11 @@ npm install
 
 ## .env config
 
-Create file .env inside project
+Create file .env inside project directory
 
-project_directory/
-│
-├── node_modules
-│
-├── src
-│
-├── .env
-│
-├── .gitignore
-├── package-lock.json
-├── package.json
-└── README.md
+then paste this into .env file
 
-### .env
+# .env
 
 MONGODB_URI='mongodb_url_atlas'
 

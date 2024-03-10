@@ -1,11 +1,10 @@
 import express from "express";
 import model from "../model/cardModel.js";
 import QRCode from "qrcode";
-import pkg from "barcode-generator";
 import models from "../model/userModel.js";
 import classListModel from "../model/classModel.js";
-import { createCanvas } from "canvas";
-import JsBarcode from "jsbarcode";
+// import { createCanvas } from "canvas";
+// import JsBarcode from "jsbarcode";
 
 const router = express.Router();
 
@@ -39,7 +38,7 @@ router.post("/create-student-card/:userId", async (req, res) => {
     const qrCode = await QRCode.toDataURL(user._id.toString());
 
     // Generate barcode
-    const canvas = createCanvas();
+    // const canvas = createCanvas();
 
     const classList = await classModel.find({ students: user._id });
 
