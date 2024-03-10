@@ -70,14 +70,45 @@ router.post("/invite-student/:classId", async (req, res) => {
 
 // Delete the class
 router.delete("/delete-class/:classId", async (req, res) => {
+  const { classId } = req.params;
+  const { userId } = req.body;
+
   try {
-    const deletedClass = await classModel.findByIdAndDelete(req.params.id);
-    if (!deletedClass) {
-      return res.status(404).send("Class not found");
+    const classItem = await classModel.findById(classId);
+
+    if (!classItem) {
+      return res.status(404).send({ message: "Class not found" });
     }
-    res.send("Class has been deleted");
+
+    if (classItem.owner.toString() !== userId) {
+      return res
+        .status(403)
+        .send({ message: "You do not have permission to delete this class" });
+    }
+
+    await classModel.findByIdAndDelete(classId);
+
+    res.send({ message: "Class has been deleted" });
   } catch (err) {
-    res.status(500).send(err);
+    res.status(500).send({ message: err.message });
+  }
+});
+
+// Update the class
+router.patch("/update-class/:classId", async (req, res) => {
+  const { classId } = req.params;
+  const { className, classProfile } = req.body;
+
+  try {
+    const updatedClass = await classModel.findByIdAndUpdate(
+      classId,
+      { className, classProfile },
+      { new: true }
+    );
+
+    res.send(updatedClass);
+  } catch (err) {
+    res.status(500).send({ message: err.message });
   }
 });
 

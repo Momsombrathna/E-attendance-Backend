@@ -3,6 +3,8 @@ import model from "../model/cardModel.js";
 import QRCode from "qrcode";
 import models from "../model/userModel.js";
 import classListModel from "../model/classModel.js";
+import bcrypt from "bcrypt";
+import s3 from "../configs/aws_s3.js";
 // import { createCanvas } from "canvas";
 // import JsBarcode from "jsbarcode";
 
@@ -33,27 +35,36 @@ router.post("/create-student-card/:userId", async (req, res) => {
     profile,
   } = req.body;
 
-  try {
-    // Generate QR code
-    const qrCode = await QRCode.toDataURL(user._id.toString());
+  const studentId = bcrypt.hashSync(user._id.toString(), 10);
 
-    // Generate barcode
-    // const canvas = createCanvas();
+  // Generate QR code
+  const qrCodeDataUrl = await QRCode.toDataURL(studentId);
+
+  // Remove the data URL prefix
+  const base64Image = qrCodeDataUrl.replace(/^data:image\/\w+;base64,/, "");
+
+  // Convert the base64 string to a buffer
+  const buffer = Buffer.from(base64Image, "base64");
+
+  //define params
+  const params = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Key: `${firstName}_${lastName}_qr_code.png`,
+    Body: buffer,
+    ContentEncoding: "base64",
+    ContentType: "image/png",
+    ACL: "public-read",
+  };
+
+  //upload to s3
+  s3.upload(params, async function (err, data) {
+    if (err) {
+      res.status(500).send({ message: err.message });
+    }
+
+    const qrCodeUrl = data.Location;
 
     const classList = await classModel.find({ students: user._id });
-
-    // Initialize the barcode generator
-    // JsBarcode(canvas, user._id.toString(), {
-    //   format: "CODE128",
-    //   displayValue: false,
-    //   width: 2,
-    //   height: 60,
-    // });
-
-    // Convert the canvas to a data URL
-    // const barcode = canvas
-    //   .toDataURL("image/png")
-    //   .replace(/^data:image\/(png|jpg);base64,/, "");
 
     const studentCard = new studentCardModel({
       userId: user._id,
@@ -67,14 +78,15 @@ router.post("/create-student-card/:userId", async (req, res) => {
       classList: classList.map((c) => c._id),
       profile,
       // barcode: barcode,
-      qrCode: qrCode,
+      qrCode: qrCodeUrl,
     });
-
-    const savedStudentCard = await studentCard.save();
-    res.status(201).json(savedStudentCard);
-  } catch (err) {
-    res.status(500).send({ message: err.message });
-  }
+    try {
+      const savedStudentCard = await studentCard.save();
+      res.status(201).json(savedStudentCard);
+    } catch (err) {
+      res.status(500).send({ message: err.message });
+    }
+  });
 });
 
 // Update student card
