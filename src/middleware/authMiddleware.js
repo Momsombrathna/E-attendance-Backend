@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-function auth(req, res, next) {
+function protectedRoute(req, res, next) {
   const token = req.header("auth-token");
   if (!token) return res.status(401).json({ error: "Access denied" });
   try {
@@ -12,4 +12,4 @@ function auth(req, res, next) {
   }
 }
 
-export default auth;
+export default protectedRoute;

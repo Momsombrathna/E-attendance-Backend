@@ -1,0 +1,35 @@
+import mongoose from "mongoose";
+
+const classSchema = new mongoose.Schema({
+  className: {
+    type: String,
+    required: true,
+  },
+  owner: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  students: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
+  classProfile: {
+    type: String,
+    default:
+      "https://res.cloudinary.com/dugfn9ryq/image/upload/v1709975141/wzeirraamssqm47b3mmu.png",
+  },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
+  created: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+const classModel = mongoose.model("Class", classSchema);
+
+export default { classModel };

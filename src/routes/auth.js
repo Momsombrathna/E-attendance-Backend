@@ -2,7 +2,6 @@ import express from "express";
 import models from "../model/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import auth from "../middleware/authMiddleware.js";
 import nodemailer from "nodemailer";
 
 const router = express.Router();
@@ -316,12 +315,6 @@ router.post("/set-new-password", async (req, res) => {
       message: `Password has been reset successfully!`,
     });
   }
-});
-
-router.get("/protected", auth, async (req, res) => {
-  r;
-  // This code will only be reached if the token is valid
-  res.send("You have accessed a protected route!");
 });
 
 export default router;
