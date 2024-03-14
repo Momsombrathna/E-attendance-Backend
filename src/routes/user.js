@@ -9,6 +9,26 @@ const { userModel } = model;
 const { studentCardModel } = CardList;
 const { classModel } = classList;
 
+// Get the user
+router.get("/get/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Fetch the user from the database
+    const user = await userModel.findById(userId);
+
+    // Check if the user exists
+    if (!user) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    // Send the user as a response
+    res.send(user);
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+});
+
 // Update the user
 router.put("/update/:userId", async (req, res) => {
   const { username, profile } = req.body;
@@ -33,26 +53,6 @@ router.put("/update/:userId", async (req, res) => {
 // Delete the user
 router.delete("/delete/:userId", (req, res) => {
   res.send("Delete from database at id: " + req.params.id);
-});
-
-// Get the user
-router.get("/get/:userId", async (req, res) => {
-  const { userId } = req.params;
-
-  try {
-    // Fetch the user from the database
-    const user = await userModel.findById(userId);
-
-    // Check if the user exists
-    if (!user) {
-      return res.status(404).send({ message: "User not found" });
-    }
-
-    // Send the user as a response
-    res.send(user);
-  } catch (err) {
-    res.status(500).send({ message: err.message });
-  }
 });
 
 // get student card

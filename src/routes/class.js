@@ -1,8 +1,14 @@
 import express from "express";
 import models from "../model/classModel.js";
 import userModels from "../model/userModel.js";
+import s3Client from "../configs/aws_s3.js";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import { toBase64 } from "@aws-sdk/util-base64-node";
+import multer from "multer";
 
 const router = express.Router();
+
+const upload = multer();
 
 const { classModel } = models;
 const { userModel } = userModels;
@@ -36,12 +42,12 @@ router.post("/create-class/:userId", async (req, res) => {
 
 // Invite the user to the class
 router.post("/invite-student/:classId", async (req, res) => {
-  const { username } = req.body;
+  const { userId } = req.body;
 
   try {
     // Find the class and the user
     const classroom = await classModel.findById(req.params.classId);
-    const user = await userModel.findOne({ username });
+    const user = await userModel.findOne({ _id: userId });
 
     // Check if the user is already added to the class
     if (classroom.students.includes(user._id)) {
@@ -95,21 +101,48 @@ router.delete("/delete-class/:classId", async (req, res) => {
 });
 
 // Update the class
-router.patch("/update-class/:classId", async (req, res) => {
-  const { classId } = req.params;
-  const { className, classProfile } = req.body;
+router.patch(
+  "/update-class/:classId",
+  upload.single("classImage"),
+  async (req, res) => {
+    const { classId } = req.params;
+    const { className } = req.body;
+    const classImage = req.file;
 
-  try {
-    const updatedClass = await classModel.findByIdAndUpdate(
-      classId,
-      { className, classProfile },
-      { new: true }
-    );
+    if (!classImage) {
+      return res.status(400).send({ message: "Please upload a class image" });
+    }
 
-    res.send(updatedClass);
-  } catch (err) {
-    res.status(500).send({ message: err.message });
+    const base64Image = classImage.buffer.toString("base64");
+
+    const buffer = Buffer.from(base64Image, "base64");
+
+    // Define params
+    const params = {
+      Bucket: process.env.AWS_BUCKET_NAME_3,
+      Key: `${className}.png`,
+      Body: buffer,
+      ContentType: "image/png",
+      ACL: "public-read",
+    };
+
+    try {
+      const uploadCommand = new PutObjectCommand(params);
+      const data = await s3Client.send(uploadCommand);
+
+      const classProfileUrl = `https://${process.env.AWS_BUCKET_NAME_3}.s3.${process.env.AWS_REGION}.amazonaws.com/${className}.png`;
+
+      const updatedClass = await classModel.findByIdAndUpdate(
+        classId,
+        { className, classProfile: classProfileUrl },
+        { new: true }
+      );
+
+      res.send(updatedClass);
+    } catch (err) {
+      res.status(500).send({ message: err.message });
+    }
   }
-});
+);
 
 export default router;

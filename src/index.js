@@ -6,6 +6,7 @@ import classRouter from "./routes/class.js";
 import cardRouter from "./routes/card.js";
 import protectedRoute from "./middleware/authMiddleware.js";
 import dotenv from "dotenv";
+import cors from "cors";
 
 // Load environment variables
 dotenv.config();
@@ -18,6 +19,7 @@ const port = process.env.PORT || 5176;
 
 // Middleware
 app.use(express.json());
+app.use(cors());
 
 // Routes
 app.use("/user", userRouter);
