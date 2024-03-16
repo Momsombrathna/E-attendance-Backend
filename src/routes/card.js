@@ -8,11 +8,7 @@ const router = express.Router();
 const upload = multer();
 
 // Create student card
-router.post(
-  "/create-student-card/:userId",
-  upload.single("profileImage"),
-  createStudentCard
-);
+router.post("/create-student-card/:userId", createStudentCard);
 
 // Update student card
 router.put(

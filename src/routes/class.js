@@ -3,7 +3,7 @@ import models from "../model/classModel.js";
 import userModels from "../model/userModel.js";
 import s3Client from "../configs/aws_s3.js";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { toBase64 } from "@aws-sdk/util-base64-node";
+import { inviteToClass } from "../controller/class/inviteUserToClass.js";
 import multer from "multer";
 
 const router = express.Router();
@@ -41,38 +41,7 @@ router.post("/create-class/:userId", async (req, res) => {
 });
 
 // Invite the user to the class
-router.post("/invite-student/:classId", async (req, res) => {
-  const { userId } = req.body;
-
-  try {
-    // Find the class and the user
-    const classroom = await classModel.findById(req.params.classId);
-    const user = await userModel.findOne({ _id: userId });
-
-    // Check if the user is already added to the class
-    if (classroom.students.includes(user._id)) {
-      return res.status(400).send("User already added to the class");
-    }
-
-    if (!classroom || !user) {
-      return res.status(404).send("Class or User not found");
-    }
-
-    if (user.verified === false) {
-      return res.status(400).send("User that has been invited is not verified");
-    }
-
-    // Add the user to the class's students array
-    classroom.students.push(user._id);
-
-    // Save the class
-    await classroom.save();
-
-    res.send(`${user.username} has been added to the class`);
-  } catch (err) {
-    res.status(500).send(err);
-  }
-});
+router.post("/invite-student/:classId", inviteToClass);
 
 // Delete the class
 router.delete("/delete-class/:classId", async (req, res) => {
@@ -95,6 +64,36 @@ router.delete("/delete-class/:classId", async (req, res) => {
     await classModel.findByIdAndDelete(classId);
 
     res.send({ message: "Class has been deleted" });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+});
+
+// Kick the student from the class
+router.delete("/kick-student/:classId", async (req, res) => {
+  const { classId } = req.params;
+  const { userId, studentId } = req.body;
+
+  try {
+    const classItem = await classModel.findById(classId);
+
+    if (!classItem) {
+      return res.status(404).send({ message: "Class not found" });
+    }
+
+    if (classItem.owner.toString() !== userId) {
+      return res
+        .status(403)
+        .send({ message: "You do not have permission to kick the student" });
+    }
+
+    classItem.students = classItem.students.filter(
+      (student) => student.userId.toString() !== studentId
+    );
+
+    await classItem.save();
+
+    res.send({ message: "Student has been kicked from the class" });
   } catch (err) {
     res.status(500).send({ message: err.message });
   }

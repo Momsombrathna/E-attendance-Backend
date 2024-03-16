@@ -1,5 +1,5 @@
 import nodemailer from "nodemailer";
-import models from "../../model/userModel.js";
+import models from "../../../model/userModel.js";
 
 const { userModel, passResetOTPModel } = models;
 

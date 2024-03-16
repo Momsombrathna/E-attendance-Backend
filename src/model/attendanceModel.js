@@ -1,30 +1,39 @@
-import mongoose from "../db/database";
+import mongoose from "mongoose";
 
 const attendanceSchema = new mongoose.Schema({
   classId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Class",
+    required: true,
+  },
+  attendances: [
+    {
+      studentId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Class.students",
+        required: true,
+      },
+      checkedIn: {
+        type: Boolean,
+        default: false,
+      },
+      status: {
+        type: String,
+        enum: ["present", "absent", "late"],
+        default: "absent",
+      },
+    },
+  ],
+  description: {
     type: String,
     required: true,
   },
-  userId: [
-    {
-      type: String,
-      data: {
-        checkedIn: {
-          type: Boolean,
-          date: Date.now,
-          required: true,
-        },
-        checkedOut: {
-          type: Boolean,
-          date: Date.now,
-          required: true,
-        },
-      },
-      required: false,
-    },
-  ],
-  status: {
-    type: String,
+  latitude: {
+    type: Number,
+    required: true,
+  },
+  longitude: {
+    type: Number,
     required: true,
   },
   created: {
@@ -32,3 +41,7 @@ const attendanceSchema = new mongoose.Schema({
     default: Date.now,
   },
 });
+
+const attendanceModel = mongoose.model("attendance", attendanceSchema);
+
+export default { attendanceModel };

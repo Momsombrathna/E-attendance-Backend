@@ -4,6 +4,7 @@ import authRouter from "./routes/auth.js";
 import adminRouter from "./routes/admin.js";
 import classRouter from "./routes/class.js";
 import cardRouter from "./routes/card.js";
+import attendanceRouter from "./routes/attendance.js";
 import protectedRoute from "./middleware/authMiddleware.js";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -27,6 +28,7 @@ app.use("/auth", authRouter);
 app.use("/admin", adminRouter);
 app.use("/class", classRouter);
 app.use("/card", cardRouter);
+app.use("/attendance", attendanceRouter);
 
 // Protected route
 app.get("/protected", protectedRoute, (req, res) => {
