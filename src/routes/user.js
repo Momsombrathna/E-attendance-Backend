@@ -2,8 +2,13 @@ import express from "express";
 import model from "../model/userModel.js";
 import CardList from "../model/cardModel.js";
 import classList from "../model/classModel.js";
+import s3Client from "../configs/aws_s3.js";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
+import multer from "multer";
 
 const router = express.Router();
+
+const upload = multer();
 
 const { userModel } = model;
 const { studentCardModel } = CardList;
@@ -30,25 +35,48 @@ router.get("/get/:userId", async (req, res) => {
 });
 
 // Update the user
-router.put("/update/:userId", async (req, res) => {
-  const { username, profile } = req.body;
+router.patch(
+  "/update/:userId",
+  upload.single("profileImage"),
+  async (req, res) => {
+    const { username } = req.body;
+    const { userId } = req.params;
+    const profileImage = req.file;
 
-  try {
-    const user = await userModel.findByIdAndUpdate(
-      req.params.id,
-      { username, profile },
-      { new: true }
-    );
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+    if (!profileImage) {
+      res.status(400).json({ message: "Profile image is required" });
     }
 
-    res.send(user);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const base64image = profileImage.buffer.toString("base64");
+
+    const imageBuffer = Buffer.from(base64image, "base64");
+
+    const params = {
+      Bucket: process.env.AWS_BUCKET_PROFILE,
+      Key: `${username}_profile_image.png`,
+      Body: imageBuffer,
+      ContentType: "image/png",
+      ACL: "public-read",
+    };
+
+    try {
+      const uploadCommand = new PutObjectCommand(params);
+      const data = await s3Client.send(uploadCommand);
+
+      const profileUrl = `https://${process.env.AWS_BUCKET_PROFILE}.s3.${process.env.AWS_REGION}.amazonaws.com/${username}_profile_image.png`;
+
+      const updatedUser = await userModel.findByIdAndUpdate(
+        userId,
+        { username, profile: profileUrl },
+        { new: true }
+      );
+
+      res.send(updatedUser);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
   }
-});
+);
 
 // Delete the user
 router.delete("/delete/:userId", (req, res) => {

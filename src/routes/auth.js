@@ -2,13 +2,15 @@ import express from "express";
 import models from "../model/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
 import { sendEmailOtp } from "../controller/auth/otp/requestEmailOtp.js";
-import { requestResetPassOtp } from "../controller/auth/otp/resetPassOtp.js";
+import { requestResetPassOtp } from "../controller/auth/reset_password/resetPassOtp.js";
+import { verifyOtp } from "../controller/auth/otp/verifyOtp.js";
+import { verifyOtpResetPass } from "../controller/auth/reset_password/verifyOtp.js";
+import { setNewPass } from "../controller/auth/reset_password/setNewPass.js";
 
-const router = express.Router(); 
+const router = express.Router();
 
-const { userModel, userOTPModel, passResetOTPModel } = models;
+const { userModel } = models;
 
 // Register
 router.post("/register", async (req, res) => {
@@ -82,108 +84,15 @@ router.post("/logout", async (req, res) => {
 router.post("/email-otp", sendEmailOtp);
 
 // Verify OTP
-router.post("/verify-otp", async (req, res) => {
-  const { email, otp } = req.body;
-
-  // Find OTP document for the user
-  const userOTP = await userOTPModel.findOne({ email });
-
-  if (!userOTP) {
-    return res.status(404).send("OTP not found 404!");
-  }
-
-  // Check if OTP is valid
-  if (userOTP.otp !== otp) {
-    return res.status(400).send("Invalid OTP 400!");
-  }
-
-  // Check if OTP is expired
-  const currentTime = new Date();
-  const otpTime = userOTP.createdAt;
-  const timeDiff = Math.abs(currentTime - otpTime);
-  const minutes = Math.floor(timeDiff / 60000);
-  if (minutes > 5) {
-    return res.status(400).send("OTP expired 400!");
-  }
-
-  // If the OTP is match, complete the registration
-  const user = await userModel.findOne({ email });
-  if (!user) {
-    return res.status(404).send("User not found 404!");
-  } else {
-    user.verified = true;
-    await user.save();
-    res.status(200).send({
-      message: `User ${user.username} has been verified successfully!`,
-    });
-  }
-});
+router.post("/verify-otp", verifyOtp);
 
 // Request OTP for reset password
 router.post("/pass-reset-req-otp", requestResetPassOtp);
 
 // Verify OTP for reset password
-router.post("/verify-pass-reset-otp", async (req, res) => {
-  const { email, otp } = req.body;
-
-  // Find OTP document for the user
-  const passResetOTP = await passResetOTPModel.findOne({ email });
-
-  if (!passResetOTP) {
-    return res.status(404).send("OTP not found 404!");
-  }
-
-  // Check if OTP is valid
-  if (passResetOTP.otp !== otp) {
-    return res.status(400).send("Invalid OTP 400!");
-  }
-
-  // Check if OTP is expired
-  const currentTime = new Date();
-  const otpTime = passResetOTP.createdAt;
-  const timeDiff = Math.abs(currentTime - otpTime);
-  const minutes = Math.floor(timeDiff / 60000);
-  if (minutes > 5) {
-    return res.status(400).send("OTP expired 400!");
-  }
-
-  // If the OTP is match, complete the registration
-  const user = await passResetOTPModel.findOne({ email });
-  if (!user) {
-    return res.status(404).send("User not found 404!");
-  } else {
-    user.reset_pass = true;
-    await user.save();
-    res.status(200).send({
-      message: `User ${user.email} has been verified password reset successfully!`,
-    });
-  }
-});
+router.post("/verify-pass-reset-otp", verifyOtpResetPass);
 
 // Set new password
-router.post("/set-new-password", async (req, res) => {
-  const { email, password } = req.body;
-
-  // Check if reset_pass true
-  const verify_otp = await passResetOTPModel.findOne({
-    reset_pass: true,
-    email,
-  });
-  if (!verify_otp) {
-    return res.status(404).send("Please request and verify OTP first!");
-  }
-
-  const user = await userModel.findOne({ email });
-  if (!user) {
-    return res.status(404).send("User not found 404!");
-  } else {
-    user.password = await bcrypt.hash(password, 10);
-    verify_otp.reset_pass = false;
-    await user.save();
-    res.status(200).send({
-      message: `Password has been reset successfully!`,
-    });
-  }
-});
+router.post("/set-new-password", setNewPass);
 
 export default router;

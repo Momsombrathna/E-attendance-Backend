@@ -8,6 +8,7 @@ import attendanceRouter from "./routes/attendance.js";
 import protectedRoute from "./middleware/authMiddleware.js";
 import dotenv from "dotenv";
 import cors from "cors";
+import { verifyToken } from "./middleware/verifyToken.js";
 
 // Load environment variables
 dotenv.config();
@@ -23,12 +24,12 @@ app.use(express.json());
 app.use(cors());
 
 // Routes
-app.use("/user", userRouter);
 app.use("/auth", authRouter);
-app.use("/admin", adminRouter);
-app.use("/class", classRouter);
-app.use("/card", cardRouter);
-app.use("/attendance", attendanceRouter);
+app.use("/user", verifyToken, userRouter);
+app.use("/admin", verifyToken, adminRouter);
+app.use("/class", verifyToken, classRouter);
+app.use("/card", verifyToken, cardRouter);
+app.use("/attendance", verifyToken, attendanceRouter);
 
 // Protected route
 app.get("/protected", protectedRoute, (req, res) => {

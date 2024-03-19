@@ -9,6 +9,10 @@ const studentCardSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  sex: {
+    type: String,
+    required: true,
+  },
   lastName: {
     type: String,
     required: true,
