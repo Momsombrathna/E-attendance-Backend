@@ -1,20 +1,20 @@
 import express from "express";
-import userRouter from "./routes/user.js";
-import authRouter from "./routes/auth.js";
-import adminRouter from "./routes/admin.js";
-import classRouter from "./routes/class.js";
-import cardRouter from "./routes/card.js";
-import attendanceRouter from "./routes/attendance.js";
-import protectedRoute from "./middleware/authMiddleware.js";
+import userRouter from "./src/routes/user.js";
+import authRouter from "./src/routes/auth.js";
+import adminRouter from "./src/routes/admin.js";
+import classRouter from "./src/routes/class.js";
+import cardRouter from "./src/routes/card.js";
+import attendanceRouter from "./src/routes/attendance.js";
+import protectedRoute from "./src/middleware/authMiddleware.js";
 import dotenv from "dotenv";
 import cors from "cors";
-import { verifyToken } from "./middleware/verifyToken.js";
+import { verifyToken } from "./src/middleware/verifyToken.js";
 
 // Load environment variables
 dotenv.config();
 
 // Database
-import("./db/database.js");
+import("./src/db/database.js");
 
 const app = express();
 const port = process.env.PORT || 5176;
