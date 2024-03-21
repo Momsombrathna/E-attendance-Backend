@@ -23,12 +23,15 @@ router.post("/register", async (req, res) => {
   try {
     const savedUser = await user.save();
     const token = jwt.sign({ _id: savedUser._id }, "your-secret-key");
+
+    savedUser.token = token;
+    await savedUser.save();
+
     res
       .status(201)
       .header("auth-token", token)
       .send({
         message: `User ${user.username} has been registered successfully!`,
-        token,
         user: savedUser,
       });
   } catch (error) {
@@ -53,9 +56,12 @@ router.post("/login", async (req, res) => {
     return res.status(400).send(`Invalid password!`);
   } else {
     const token = jwt.sign({ _id: user._id }, "your-secret-key");
+
+    user.token = token;
+    await user.save();
+
     res.header("auth-token", token).send({
       message: `Welcome back, ${user.username}!`,
-      token,
       user,
     });
   }
@@ -74,6 +80,8 @@ router.post("/logout", async (req, res) => {
   if (!user) {
     return res.status(404).send("User not found 404!");
   } else {
+    user.token = "";
+    await user.save();
     res
       .header("auth-token", "")
       .send(`User ${user.username} has been logged out!`);

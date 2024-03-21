@@ -35,6 +35,10 @@ const userSchema = new mongoose.Schema({
     default:
       "https://res.cloudinary.com/dugfn9ryq/image/upload/v1709959639/rjapwzgokwhog42nilql.jpg",
   },
+  token: {
+    type: String,
+    required: false,
+  },
 });
 
 const otpSchema = new mongoose.Schema({
