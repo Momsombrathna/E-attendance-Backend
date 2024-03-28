@@ -57,7 +57,7 @@ const otpSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 300, // After 5 minutes the OTP will be expired
+    expires: 120,
   },
 });
 
@@ -81,7 +81,7 @@ const passResetOTPSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 300, // After 5 minutes the OTP will be expired
+    expires: 120,
   },
 });
 
