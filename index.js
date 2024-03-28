@@ -6,6 +6,7 @@ import classRouter from "./src/routes/class.js";
 import cardRouter from "./src/routes/card.js";
 import attendanceRouter from "./src/routes/attendance.js";
 import protectedRoute from "./src/middleware/authMiddleware.js";
+import intervalRouter from "./src/routes/interval.js";
 import dotenv from "dotenv";
 import cors from "cors";
 import { verifyToken } from "./src/middleware/verifyToken.js";
@@ -25,6 +26,7 @@ app.use(cors());
 
 // Routes
 app.use("/auth", authRouter);
+app.use("/interval", intervalRouter);
 app.use("/user", verifyToken, userRouter);
 app.use("/admin", verifyToken, adminRouter);
 app.use("/class", verifyToken, classRouter);
