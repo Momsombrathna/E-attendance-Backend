@@ -7,6 +7,7 @@ import { requestResetPassOtp } from "../controller/auth/reset_password/resetPass
 import { verifyOtp } from "../controller/auth/otp/verifyOtp.js";
 import { verifyOtpResetPass } from "../controller/auth/reset_password/verifyOtp.js";
 import { setNewPass } from "../controller/auth/reset_password/setNewPass.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
@@ -68,7 +69,7 @@ router.post("/login", async (req, res) => {
 });
 
 // Logout
-router.post("/logout/:userId", async (req, res) => {
+router.post("/logout/:userId", verifyToken, async (req, res) => {
   const user = await userModel.findOne({ _id: req.params.userId });
 
   // Check if user is verified
