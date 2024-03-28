@@ -21,23 +21,11 @@ router.post("/create-interval", async (req, res) => {
 
 // run the interval
 router.post("/start-interval/:intervalId", async (req, res) => {
-  const { intervalId } = req.params;
-
   try {
-    const interval = await intervalModels.findById(intervalId);
-
-    if (!interval) {
-      return res.status(404).send({ message: "Interval not found" });
-    }
-
-    // Start the interval
-    const saveInterval = new intervalModels({
-      isRunning: true,
-    });
-
-    await saveInterval.save();
-
-    res.status(200).json(saveInterval);
+    const interval = await intervalModels.findById(req.params.intervalId);
+    interval.isRunning = true;
+    await interval.save();
+    res.status(200).json(interval);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -45,19 +33,10 @@ router.post("/start-interval/:intervalId", async (req, res) => {
 
 // stop the interval
 router.post("/stop-interval/:intervalId", async (req, res) => {
-  const { intervalId } = req.params;
-
   try {
-    const interval = await intervalModels.findById(intervalId);
-
-    if (!interval) {
-      return res.status(404).send({ message: "Interval not found" });
-    }
-
-    // Stop the interval
+    const interval = await intervalModels.findById(req.params.intervalId);
     interval.isRunning = false;
     await interval.save();
-
     res.status(200).json(interval);
   } catch (err) {
     res.status(500).json({ message: err.message });
