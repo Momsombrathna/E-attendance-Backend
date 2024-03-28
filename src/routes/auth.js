@@ -68,8 +68,8 @@ router.post("/login", async (req, res) => {
 });
 
 // Logout
-router.post("/logout", async (req, res) => {
-  const user = await userModel.findOne({ username: req.body.username });
+router.post("/logout/:userId", async (req, res) => {
+  const user = await userModel.findOne({ _id: req.params.userId });
 
   // Check if user is verified
   if (!user.verified) {
