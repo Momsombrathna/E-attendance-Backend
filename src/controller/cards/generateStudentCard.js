@@ -23,6 +23,7 @@ export const createStudentCard = async (req, res) => {
   const {
     firstName,
     lastName,
+    sex,
     age,
     dateOfBirth,
     address,
@@ -64,6 +65,7 @@ export const createStudentCard = async (req, res) => {
       userId: user._id,
       firstName,
       lastName,
+      sex,
       age,
       dateOfBirth,
       address,

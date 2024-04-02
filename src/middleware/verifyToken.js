@@ -13,7 +13,7 @@ export const verifyToken = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, "your-secret-key");
     const user = await userModel.findById(decoded._id);
-    if (token !== user.token)
+    if (!user.tokens.includes(token))
       return res.status(401).json({ error: "Invalid token" });
 
     req.userId = decoded._id;

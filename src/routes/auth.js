@@ -53,7 +53,7 @@ router.post("/login", async (req, res) => {
   } else {
     const token = jwt.sign({ _id: user._id }, "your-secret-key");
 
-    user.token = token;
+    user.tokens.push(token);
     await user.save();
 
     res.header("auth-token", token).send({
@@ -65,22 +65,22 @@ router.post("/login", async (req, res) => {
 
 // Logout
 router.post("/logout/:userId", verifyToken, async (req, res) => {
-  const user = await userModel.findOne({ _id: req.params.userId });
-
-  // Check if user is verified
-  if (!user.verified) {
-    return res.status(400).send(`User ${user.username} has not been verified!`);
-  }
-
-  // Check if user is registered
-  if (!user) {
-    return res.status(404).send("User not found 404!");
-  } else {
-    user.token = "";
+  try {
+    const user = await userModel.findOne({ _id: req.params.userId });
+    if (!user) {
+      return res.status(404).send("User not found 404!");
+    }
+    if (user.verified === false) {
+      return res
+        .status(400)
+        .send(`User ${user.username} has not been verified!`);
+    }
+    const token = req.header("auth-token");
+    user.tokens = user.tokens.filter((t) => t !== token);
     await user.save();
-    res
-      .header("auth-token", "")
-      .send(`User ${user.username} has been logged out!`);
+    res.json({ message: `${user.username} has been logged out.` });
+  } catch (error) {
+    res.status(500).send(`Logout failed: ${error}`);
   }
 });
 
