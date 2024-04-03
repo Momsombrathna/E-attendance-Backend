@@ -1,11 +1,13 @@
 import express from "express";
 import mongoose from "mongoose";
 import model from "../model/classModel.js";
+import models from "../model/cardModel.js";
 
 const router = express.Router();
 
 const User = mongoose.model("User");
 const { classModel } = model;
+const { studentCardModel } = models;
 
 // Get all users from database
 router.get("/all-users", async (req, res) => {
@@ -24,6 +26,18 @@ router.get("/all-classes", async function (req, res) {
   try {
     const classes = await classModel.find();
     res.send(classes);
+  } catch (err) {
+    res.status(500).send({
+      message: err.message,
+    });
+  }
+});
+
+// get all cards from database
+router.get("/all-cards", async function (req, res) {
+  try {
+    const cards = await studentCardModel.find();
+    res.send(cards);
   } catch (err) {
     res.status(500).send({
       message: err.message,
