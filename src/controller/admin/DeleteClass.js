@@ -1,6 +1,8 @@
 import model from "../../model/classModel.js";
+import models from "../../model/attendanceModel.js";
 
 const { classModel } = model;
+const { attendanceModel } = models;
 
 export const deleteClass = async (req, res) => {
   const classId = req.params.classId;
@@ -11,6 +13,9 @@ export const deleteClass = async (req, res) => {
         message: `Class with id ${classId} not found!`,
       });
     }
+
+    await attendanceModel.deleteMany({ classId: classId });
+
     res.send({
       message: `Class ${classroom.className} has been deleted!`,
     });
@@ -20,4 +25,3 @@ export const deleteClass = async (req, res) => {
     });
   }
 };
-// Kick the student from the class
