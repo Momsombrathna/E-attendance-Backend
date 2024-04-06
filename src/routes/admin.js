@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import model from "../model/classModel.js";
 import models from "../model/cardModel.js";
 import { deleteUser } from "../controller/admin/DeleteUser.js";
+import { deleteClass } from "../controller/admin/DeleteClass.js";
 
 const router = express.Router();
 
@@ -50,22 +51,6 @@ router.get("/all-cards", async function (req, res) {
 router.delete("/delete-user/:userId", deleteUser);
 
 // Delete class from database
-router.delete("/delete-class/:classId", async (req, res) => {
-  try {
-    const classroom = await classModel.findByIdAndDelete(req.params.id);
-    if (!classroom) {
-      return res.status(404).send({
-        message: `Class with id ${req.params.id} not found!`,
-      });
-    }
-    res.send({
-      message: `Class with id ${req.params.id} has been deleted!`,
-    });
-  } catch (err) {
-    res.status(500).send({
-      message: err.message,
-    });
-  }
-});
+router.delete("/delete-class/:classId", deleteClass);
 
 export default router;
