@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import model from "../model/classModel.js";
 import models from "../model/cardModel.js";
+import { deleteUser } from "../controller/admin/DeleteUser.js";
 
 const router = express.Router();
 
@@ -46,23 +47,7 @@ router.get("/all-cards", async function (req, res) {
 });
 
 // Delete user from database
-router.delete("/delete-user/:userId", async (req, res) => {
-  try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
-      return res.status(404).send({
-        message: `User with id ${req.params.id} not found!`,
-      });
-    }
-    res.send({
-      message: `User with id ${req.params.id} has been deleted!`,
-    });
-  } catch (err) {
-    res.status(500).send({
-      message: err.message,
-    });
-  }
-});
+router.delete("/delete-user/:userId", deleteUser);
 
 // Delete class from database
 router.delete("/delete-class/:classId", async (req, res) => {
