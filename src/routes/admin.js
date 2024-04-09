@@ -4,6 +4,7 @@ import model from "../model/classModel.js";
 import models from "../model/cardModel.js";
 import { deleteUser } from "../controller/admin/DeleteUser.js";
 import { deleteClass } from "../controller/admin/DeleteClass.js";
+import { getClassRoom } from "../controller/admin/getClass.js";
 
 const router = express.Router();
 
@@ -46,6 +47,9 @@ router.get("/all-cards", async function (req, res) {
     });
   }
 });
+
+// get class by id
+router.get("/get-class/:classId", getClassRoom);
 
 // Delete user from database
 router.delete("/delete-user/:userId", deleteUser);
