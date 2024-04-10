@@ -7,6 +7,7 @@ import { deleteClass } from "../controller/admin/DeleteClass.js";
 import { getClassRoom } from "../controller/admin/getClass.js";
 import { adminVerifyToken } from "../middleware/adminVerifyToken.js";
 import { getTimeLine } from "../controller/admin/GetTimeLine.js";
+import { getUser } from "../controller/admin/GetUser.js";
 
 const router = express.Router();
 
@@ -25,6 +26,9 @@ router.get("/all-users", adminVerifyToken, async (req, res) => {
     });
   }
 });
+
+// get user by id
+router.get("/get-user/:userId", adminVerifyToken, getUser);
 
 // get all classes from database
 router.get("/all-classes", adminVerifyToken, async function (req, res) {
