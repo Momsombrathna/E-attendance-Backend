@@ -38,10 +38,19 @@ const attendanceSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  from: {
+    type: Date,
+    required: true,
+  },
+  to: {
+    type: Date,
+    required: true,
+  },
   latitude: {
     type: Number,
     required: true,
   },
+
   longitude: {
     type: Number,
     required: true,
