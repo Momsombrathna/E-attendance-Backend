@@ -6,6 +6,7 @@ import { deleteUser } from "../controller/admin/DeleteUser.js";
 import { deleteClass } from "../controller/admin/DeleteClass.js";
 import { getClassRoom } from "../controller/admin/getClass.js";
 import { adminVerifyToken } from "../middleware/adminVerifyToken.js";
+import { getTimeLine } from "../controller/admin/GetTimeLine.js";
 
 const router = express.Router();
 
@@ -51,6 +52,9 @@ router.get("/all-cards", adminVerifyToken, async function (req, res) {
 
 // get class by id
 router.get("/get-class/:classId", adminVerifyToken, getClassRoom);
+
+// get timeline by class id
+router.get("/get-timeline/:id", adminVerifyToken, getTimeLine);
 
 // Delete user from database
 router.delete("/delete-user/:userId", adminVerifyToken, deleteUser);
