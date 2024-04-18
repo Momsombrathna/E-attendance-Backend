@@ -24,7 +24,6 @@ export const userQuery = async (req, res) => {
               ? false
               : null,
         },
-        { createdAt: { $gte: startDate, $lte: endDate } },
       ].filter(Boolean),
     });
 
