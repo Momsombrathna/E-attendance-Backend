@@ -8,6 +8,7 @@ import { getClassRoom } from "../controller/admin/getClass.js";
 import { adminVerifyToken } from "../middleware/adminVerifyToken.js";
 import { getTimeLine } from "../controller/admin/GetTimeLine.js";
 import { getUser } from "../controller/admin/GetUser.js";
+import { userQuery } from "../controller/admin/SearchUser.js";
 
 const router = express.Router();
 
@@ -65,5 +66,8 @@ router.delete("/delete-user/:userId", adminVerifyToken, deleteUser);
 
 // Delete class from database
 router.delete("/delete-class/:classId", adminVerifyToken, deleteClass);
+
+// Search user by query
+router.get("/search-user/:query", adminVerifyToken, userQuery);
 
 export default router;
