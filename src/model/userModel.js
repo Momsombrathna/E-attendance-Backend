@@ -39,6 +39,7 @@ const userSchema = new mongoose.Schema({
     {
       type: String,
       default: [],
+      expires: 1209600, // expire in 14 days
     },
   ],
 });

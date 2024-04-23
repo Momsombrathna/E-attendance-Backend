@@ -1,5 +1,4 @@
 import model from "../../model/userModel.js";
-import moment from "moment";
 
 const { userModel } = model;
 
@@ -7,10 +6,6 @@ export const userQuery = async (req, res) => {
   const { query } = req.params;
 
   try {
-    const date = moment(query, "YY/MM/DD HH:mm:ss").toDate();
-    const startDate = moment(date).startOf("day").toDate();
-    const endDate = moment(date).endOf("day").toDate();
-
     const users = await userModel.find({
       $or: [
         { username: { $regex: query, $options: "i" } },

@@ -15,7 +15,7 @@ const { userModel } = userModels;
 
 // Create the class by user
 router.post("/create-class/:userId", async (req, res) => {
-  const { className, student, owner } = req.body;
+  const { className, student } = req.body;
 
   // Find the user
   const user = await userModel.findById(req.params.userId);
@@ -27,8 +27,8 @@ router.post("/create-class/:userId", async (req, res) => {
   const newClass = new classModel({
     className,
     owner: user._id,
+    ownerName: user.username,
     students: [student],
-    createdBy: user._id,
   });
 
   // Save the class

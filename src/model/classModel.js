@@ -9,6 +9,10 @@ const classSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  ownerName: {
+    type: String,
+    required: true,
+  },
   students: [
     {
       userId: {
@@ -33,10 +37,6 @@ const classSchema = new mongoose.Schema({
     type: String,
     default:
       "https://res.cloudinary.com/dugfn9ryq/image/upload/v1709975141/wzeirraamssqm47b3mmu.png",
-  },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
   },
   created: {
     type: Date,

@@ -9,6 +9,7 @@ import { adminVerifyToken } from "../middleware/adminVerifyToken.js";
 import { getTimeLine } from "../controller/admin/GetTimeLine.js";
 import { getUser } from "../controller/admin/GetUser.js";
 import { userQuery } from "../controller/admin/SearchUser.js";
+import { classQuery } from "../controller/admin/SearchClass.js";
 
 const router = express.Router();
 
@@ -69,5 +70,8 @@ router.delete("/delete-class/:classId", adminVerifyToken, deleteClass);
 
 // Search user by query
 router.get("/search-user/:query", adminVerifyToken, userQuery);
+
+// Search class by query
+router.get("/search-class/:query", adminVerifyToken, classQuery);
 
 export default router;
