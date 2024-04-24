@@ -1,6 +1,8 @@
 import model from "../../model/userModel.js";
+import models from "../../model/cardModel.js";
 
 const { userModel } = model;
+const { studentCardModel } = models;
 
 export const deleteUser = async (req, res) => {
   const userId = req.params.userId;
@@ -11,6 +13,9 @@ export const deleteUser = async (req, res) => {
         message: `User with id ${userId} not found!`,
       });
     }
+
+    await studentCardModel.deleteMany({ userId: userId });
+
     res.send({
       message: `User ${user.username} has been deleted!`,
     });
