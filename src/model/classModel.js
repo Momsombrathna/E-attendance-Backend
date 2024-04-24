@@ -15,22 +15,7 @@ const classSchema = new mongoose.Schema({
   },
   students: [
     {
-      userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-      profile: {
-        type: String,
-      },
-      firstName: {
-        type: String,
-      },
-      lastName: {
-        type: String,
-      },
-      userName: {
-        type: String,
-      },
+      type: String,
     },
   ],
   classProfile: {

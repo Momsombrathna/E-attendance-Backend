@@ -9,8 +9,7 @@ const attendanceSchema = new mongoose.Schema({
   attendances: [
     {
       studentId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Class.students",
+        type: String,
         required: true,
       },
       checkedIn: {
@@ -19,6 +18,7 @@ const attendanceSchema = new mongoose.Schema({
       },
       checkedInTime: {
         type: Date,
+        default: null,
       },
       checkedOut: {
         type: Boolean,
@@ -26,6 +26,7 @@ const attendanceSchema = new mongoose.Schema({
       },
       checkedOutTime: {
         type: Date,
+        default: null,
       },
       status: {
         type: String,

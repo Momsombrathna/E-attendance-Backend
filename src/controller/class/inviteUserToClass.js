@@ -2,15 +2,12 @@ import models from "../../model/classModel.js";
 import userModels from "../../model/userModel.js";
 
 const { classModel } = models;
-const { userModel } = userModels;
 
 export const inviteToClass = async (req, res) => {
   const { userId } = req.body;
 
   try {
     const classroom = await classModel.findById(req.params.classId);
-
-    const user = await userModel.findOne({ _id: userId });
 
     if (!classroom) {
       return res.status(404).send({ message: "Class not found" });
@@ -20,11 +17,7 @@ export const inviteToClass = async (req, res) => {
       return res.status(400).send({ message: "User already in the class" });
     }
 
-    classroom.students.push({
-      userId,
-      profile: user.profile,
-      userName: user.username,
-    });
+    classroom.students.push(userId);
 
     await classroom.save();
 
