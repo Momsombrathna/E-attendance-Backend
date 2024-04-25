@@ -12,6 +12,14 @@ const attendanceSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
+      profile: {
+        type: String,
+        required: true,
+      },
+      username: {
+        type: String,
+        required: true,
+      },
       checkedIn: {
         type: Boolean,
         default: false,

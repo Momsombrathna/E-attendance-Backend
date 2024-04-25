@@ -43,6 +43,8 @@ export const createTimeLine = async (req, res) => {
         if (student) {
           return {
             studentId: student,
+            username: user.username,
+            profile: user.profile,
             checkedIn: false,
             checkedInTime: null,
             checkedOut: false,
