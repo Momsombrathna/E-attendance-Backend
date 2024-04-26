@@ -9,7 +9,8 @@ const { attendanceModel } = attendance;
 
 export const createTimeLine = async (req, res) => {
   const { classId } = req.params;
-  const { userId, description, from, to, latitude, longitude } = req.body;
+  const { userId, description, from, to, latitude, longitude, location_range } =
+    req.body;
 
   // Find the class
   const classroom = await classModel.findById(classId);
@@ -38,13 +39,12 @@ export const createTimeLine = async (req, res) => {
     to,
     latitude,
     longitude,
+    location_range,
     attendances: classroom.students
       .map((student) => {
         if (student) {
           return {
             studentId: student,
-            username: user.username,
-            profile: user.profile,
             checkedIn: false,
             checkedInTime: null,
             checkedOut: false,

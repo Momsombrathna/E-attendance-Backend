@@ -40,8 +40,8 @@ export const checkedIn = async (req, res) => {
     attendance.longitude
   );
 
-  // Check distance only 10m x 10m from the location that allowed to check in
-  if (distance >= 0.01) {
+  // Check distance from database to that allowed to check in
+  if (distance >= attendance.location_range) {
     let distanceStr = "";
     if (distance >= 10) {
       // Distance is in km

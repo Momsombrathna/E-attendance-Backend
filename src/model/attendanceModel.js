@@ -12,14 +12,6 @@ const attendanceSchema = new mongoose.Schema({
         type: String,
         required: true,
       },
-      profile: {
-        type: String,
-        required: true,
-      },
-      username: {
-        type: String,
-        required: true,
-      },
       checkedIn: {
         type: Boolean,
         default: false,
@@ -55,11 +47,14 @@ const attendanceSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  location_range: {
+    type: Number,
+    required: true,
+  },
   latitude: {
     type: Number,
     required: true,
   },
-
   longitude: {
     type: Number,
     required: true,
