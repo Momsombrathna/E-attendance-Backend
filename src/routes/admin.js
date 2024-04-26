@@ -4,12 +4,13 @@ import model from "../model/classModel.js";
 import models from "../model/cardModel.js";
 import { deleteUser } from "../controller/admin/DeleteUser.js";
 import { deleteClass } from "../controller/admin/DeleteClass.js";
-import { getClassRoom } from "../controller/admin/getClass.js";
+import { GetClassRoom } from "../controller/admin/GetClass.js";
 import { adminVerifyToken } from "../middleware/adminVerifyToken.js";
 import { getTimeLine } from "../controller/admin/GetTimeLine.js";
 import { getUser } from "../controller/admin/GetUser.js";
 import { userQuery } from "../controller/admin/SearchUser.js";
 import { classQuery } from "../controller/admin/SearchClass.js";
+import { UpdateUserRole } from "../controller/admin/ManageUserRole.js";
 
 const router = express.Router();
 
@@ -57,7 +58,7 @@ router.get("/all-cards", adminVerifyToken, async function (req, res) {
 });
 
 // get class by id
-router.get("/get-class/:classId", adminVerifyToken, getClassRoom);
+router.get("/get-class/:classId", adminVerifyToken, GetClassRoom);
 
 // get timeline by class id
 router.get("/get-timeline/:id", adminVerifyToken, getTimeLine);
@@ -73,5 +74,8 @@ router.get("/search-user/:query", adminVerifyToken, userQuery);
 
 // Search class by query
 router.get("/search-class/:query", adminVerifyToken, classQuery);
+
+// Update user role
+router.put("/update-role/:adminId", adminVerifyToken, UpdateUserRole);
 
 export default router;
