@@ -10,7 +10,7 @@ import { getTimeLine } from "../controller/admin/GetTimeLine.js";
 import { getUser } from "../controller/admin/GetUser.js";
 import { userQuery } from "../controller/admin/SearchUser.js";
 import { classQuery } from "../controller/admin/SearchClass.js";
-import { UpdateUserRole } from "../controller/admin/ManageUserRole.js";
+import { updateUserRole } from "../controller/admin/ManageUserRole.js";
 
 const router = express.Router();
 
@@ -76,6 +76,6 @@ router.get("/search-user/:query", adminVerifyToken, userQuery);
 router.get("/search-class/:query", adminVerifyToken, classQuery);
 
 // Update user role
-router.put("/update-role/:adminId", adminVerifyToken, UpdateUserRole);
+router.put("/update-role/:adminId", adminVerifyToken, updateUserRole);
 
 export default router;

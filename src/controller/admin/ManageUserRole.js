@@ -2,7 +2,7 @@ import model from "../../model/userModel.js";
 
 const { userModel } = model;
 
-export const UpdateUserRole = async (req, res) => {
+export const updateUserRole = async (req, res) => {
   const { adminId } = req.params;
   const { role, userId } = req.body;
 
