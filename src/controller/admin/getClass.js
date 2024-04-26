@@ -2,7 +2,7 @@ import model from "../../model/classModel.js";
 
 const { classModel } = model;
 
-export const GetClassRoom = async (req, res) => {
+export const getClassRoom = async (req, res) => {
   const { classId } = req.params;
 
   try {

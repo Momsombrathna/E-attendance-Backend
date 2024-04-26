@@ -4,7 +4,7 @@ import model from "../model/classModel.js";
 import models from "../model/cardModel.js";
 import { deleteUser } from "../controller/admin/DeleteUser.js";
 import { deleteClass } from "../controller/admin/DeleteClass.js";
-import { GetClassRoom } from "../controller/admin/GetClass.js";
+import { getClassRoom } from "../controller/admin/GetClass.js";
 import { adminVerifyToken } from "../middleware/adminVerifyToken.js";
 import { getTimeLine } from "../controller/admin/GetTimeLine.js";
 import { getUser } from "../controller/admin/GetUser.js";
@@ -58,7 +58,7 @@ router.get("/all-cards", adminVerifyToken, async function (req, res) {
 });
 
 // get class by id
-router.get("/get-class/:classId", adminVerifyToken, GetClassRoom);
+router.get("/get-class/:classId", adminVerifyToken, getClassRoom);
 
 // get timeline by class id
 router.get("/get-timeline/:id", adminVerifyToken, getTimeLine);
