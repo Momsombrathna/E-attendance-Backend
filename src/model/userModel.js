@@ -88,6 +88,9 @@ const passResetOTPSchema = new mongoose.Schema({
   },
 });
 
+passResetOTPSchema.index({ createdAt: 1 }, { expireAfterSeconds: 120 });
+otpSchema.index({ createdAt: 1 }, { expireAfterSeconds: 120 });
+
 const userModel = mongoose.model("User", userSchema);
 const userOTPModel = mongoose.model("email_otp", otpSchema);
 const passResetOTPModel = mongoose.model("pass_reset_otp", passResetOTPSchema);
