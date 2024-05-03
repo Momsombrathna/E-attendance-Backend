@@ -6,7 +6,9 @@ export const verifyOtpResetPass = async (req, res) => {
   const { email, otp } = req.body;
 
   // Find OTP document for the user
-  const passResetOTP = await passResetOTPModel.findOne({ email });
+  const passResetOTP = await passResetOTPModel
+    .findOne({ email })
+    .sort({ createdAt: -1 });
 
   if (!passResetOTP) {
     return res.status(404).send("OTP not found 404!");
@@ -22,7 +24,7 @@ export const verifyOtpResetPass = async (req, res) => {
   const otpTime = passResetOTP.createdAt;
   const timeDiff = Math.abs(currentTime - otpTime);
   const minutes = Math.floor(timeDiff / 60000);
-  if (minutes > 5) {
+  if (minutes > 2) {
     return res.status(400).send("OTP expired 400!");
   }
 
