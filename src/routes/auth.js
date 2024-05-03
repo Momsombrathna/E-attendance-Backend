@@ -15,23 +15,36 @@ const { userModel } = models;
 
 // Register
 router.post("/register", async (req, res) => {
+  const { username, password, email } = req.body;
+
+  // Check if username already exists
+  const usernameExists = await userModel.findOne({ username });
+  if (usernameExists) {
+    return res.status(400).send({ message: "Username already exists" });
+  }
+
+  // Check if email already exists
+  const emailExists = await userModel.findOne({ email });
+  if (emailExists) {
+    return res.status(400).send({ message: "Email already exists" });
+  }
+
   const user = new userModel({
-    username: req.body.username,
-    password: await bcrypt.hash(req.body.password, 10),
-    email: req.body.email,
-    role: req.body.role,
+    username,
+    password: await bcrypt.hash(password, 10),
+    email,
+    role,
   });
+
   try {
     const savedUser = await user.save();
-
-    await savedUser.save();
 
     res.status(201).send({
       message: `User ${user.username} has been registered successfully!`,
       user: savedUser,
     });
   } catch (error) {
-    res.status(500).send(`Registration failed: ${error}`);
+    res.status(400).send({ message: `Registration failed: ${error}` });
   }
 });
 
@@ -40,16 +53,18 @@ router.post("/login", async (req, res) => {
   const user = await userModel.findOne({
     $or: [{ email: req.body.username }, { username: req.body.username }],
   });
-  if (!user) return res.status(404).send("User not found 404!");
+  if (!user) return res.status(404).send({ message: `User not found!` });
 
   if (!user.verified) {
-    return res.status(400).send(`User ${user.username} has not been verified!`);
+    return res
+      .status(400)
+      .send({ message: `User ${user.username} has not been verified!` });
   }
 
   // compare the password
   const validPass = await bcrypt.compare(req.body.password, user.password);
   if (!validPass) {
-    return res.status(400).send(`Invalid password!`);
+    return res.status(400).send({ message: `Invalid password!` });
   } else {
     const token = jwt.sign({ _id: user._id }, "your-secret-key");
 
@@ -68,12 +83,12 @@ router.post("/logout/:userId", verifyToken, async (req, res) => {
   try {
     const user = await userModel.findOne({ _id: req.params.userId });
     if (!user) {
-      return res.status(404).send("User not found 404!");
+      return res.status(404).send({ message: `User not found!` });
     }
     if (user.verified === false) {
       return res
         .status(400)
-        .send(`User ${user.username} has not been verified!`);
+        .send({ message: `User ${user.username} has not been verified!` });
     }
     const token = req.header("auth-token");
     user.tokens = user.tokens.filter((t) => t !== token);
