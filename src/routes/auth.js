@@ -15,7 +15,7 @@ const { userModel } = models;
 
 // Register
 router.post("/register", async (req, res) => {
-  const { username, password, email } = req.body;
+  const { username, password, email, role } = req.body;
 
   // Check if username already exists
   const usernameExists = await userModel.findOne({ username });
