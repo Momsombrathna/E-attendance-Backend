@@ -4,6 +4,7 @@ import userModels from "../model/userModel.js";
 import s3Client from "../configs/aws_s3.js";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { inviteToClass } from "../controller/class/inviteUserToClass.js";
+import { inviteUserByCode } from "../controller/class/inviteUserByCode.js";
 import multer from "multer";
 
 const router = express.Router();
@@ -23,12 +24,16 @@ router.post("/create-class/:userId", async (req, res) => {
     return res.status(404).json({ message: "User not found" });
   }
 
+  // generate a random code
+  const code = Math.random().toString(36).substring(7);
+
   // Create a new class
   const newClass = new classModel({
     className,
     owner: user._id,
     ownerName: user.username,
     students: [student],
+    code,
   });
 
   // Save the class
@@ -42,6 +47,9 @@ router.post("/create-class/:userId", async (req, res) => {
 
 // Invite the user to the class
 router.post("/invite-student/:classId", inviteToClass);
+
+// Invite the user by code
+router.post("/invite-by-code/:userId", inviteUserByCode);
 
 // Delete the class
 router.delete("/delete-class/:classId", async (req, res) => {

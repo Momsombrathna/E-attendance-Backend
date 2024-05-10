@@ -23,6 +23,10 @@ const classSchema = new mongoose.Schema({
     default:
       "https://res.cloudinary.com/dugfn9ryq/image/upload/v1709975141/wzeirraamssqm47b3mmu.png",
   },
+  code: {
+    type: String,
+    required: true,
+  },
   created: {
     type: Date,
     default: Date.now,
