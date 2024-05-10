@@ -29,7 +29,7 @@ export const checkedIn = async (req, res) => {
     return res
       .status(401)
       .json({ message: "You are not in the attendance list" });
-  if (student.checkedIn)
+  if (student.checkedIn === true)
     return res.status(400).json({ message: "You are already checked in" });
 
   // Check if user is in the location

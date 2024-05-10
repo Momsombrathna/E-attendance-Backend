@@ -36,7 +36,7 @@ export const checkedOut = async (req, res) => {
   const student = attendance.attendances.find(
     (student) => student.studentId.toString() === studentId
   );
-  if (student.checkedOut) {
+  if (student.checkedOut === true) {
     res.status(400).json({ message: "You are already checked out" });
   }
 
