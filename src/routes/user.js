@@ -53,7 +53,7 @@ router.patch(
 
     const params = {
       Bucket: process.env.AWS_BUCKET_PROFILE,
-      Key: `${username}_profile_image.png`,
+      Key: `${userId}_profile_image.png`,
       Body: imageBuffer,
       ContentType: "image/png",
       ACL: "public-read",
@@ -63,7 +63,7 @@ router.patch(
       const uploadCommand = new PutObjectCommand(params);
       const data = await s3Client.send(uploadCommand);
 
-      const profileUrl = `https://${process.env.AWS_BUCKET_PROFILE}.s3.${process.env.AWS_REGION}.amazonaws.com/${username}_profile_image.png`;
+      const profileUrl = `https://${process.env.AWS_BUCKET_PROFILE}.s3.${process.env.AWS_REGION}.amazonaws.com/${userId}_profile_image.png`;
 
       const updatedUser = await userModel.findByIdAndUpdate(
         userId,

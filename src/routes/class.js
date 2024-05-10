@@ -119,7 +119,7 @@ router.patch(
     // Define params
     const params = {
       Bucket: process.env.AWS_BUCKET_NAME_3,
-      Key: `${className}.png`,
+      Key: `${classId}.png`,
       Body: buffer,
       ContentType: "image/png",
       ACL: "public-read",
@@ -129,7 +129,7 @@ router.patch(
       const uploadCommand = new PutObjectCommand(params);
       const data = await s3Client.send(uploadCommand);
 
-      const classProfileUrl = `https://${process.env.AWS_BUCKET_NAME_3}.s3.${process.env.AWS_REGION}.amazonaws.com/${className}.png`;
+      const classProfileUrl = `https://${process.env.AWS_BUCKET_NAME_3}.s3.${process.env.AWS_REGION}.amazonaws.com/${classId}.png`;
 
       const updatedClass = await classModel.findByIdAndUpdate(
         classId,

@@ -39,7 +39,7 @@ export const editStudentCard = async (req, res) => {
 
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME_2,
-    Key: `${firstName}_${lastName}_profile_image.png`,
+    Key: `${email}_profile_image.png`,
     Body: imageBuffer,
     ContentType: "image/png",
     ACL: "public-read",
@@ -49,7 +49,7 @@ export const editStudentCard = async (req, res) => {
     const uploadCommand = new PutObjectCommand(params);
     const data = await s3Client.send(uploadCommand);
 
-    const profileUrl = `https://${process.env.AWS_BUCKET_NAME_2}.s3.${process.env.AWS_REGION}.amazonaws.com/${firstName}_${lastName}_profile_image.png`;
+    const profileUrl = `https://${process.env.AWS_BUCKET_NAME_2}.s3.${process.env.AWS_REGION}.amazonaws.com/${email}_profile_image.png`;
 
     const updatedStudentCard = await studentCardModel.findOneAndUpdate(
       { userId: user._id },
