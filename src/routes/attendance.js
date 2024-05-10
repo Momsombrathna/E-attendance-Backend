@@ -4,6 +4,7 @@ import { editTimeLine } from "../controller/attendance/editTimeLine.js";
 import { deleteTimeLine } from "../controller/attendance/deleteTimeLine.js";
 import { checkedIn } from "../controller/attendance/checkedIn.js";
 import { checkedOut } from "../controller/attendance/checkedOut.js";
+import { getAttendance } from "../controller/attendance/getAttendance.js";
 
 const router = express.Router();
 
@@ -21,5 +22,8 @@ router.post("/checked-in/:attendanceId", checkedIn);
 
 // Check out
 router.post("/checked-out/:attendanceId", checkedOut);
+
+// Get attendance
+router.get("/get-subclass/:id", getAttendance);
 
 export default router;
