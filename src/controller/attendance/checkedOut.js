@@ -85,6 +85,17 @@ export const checkedOut = async (req, res) => {
     return res.status(400).json({ message: "You are too late" });
   }
 
+  // Check if 30 minutes have passed since the start of the attendance
+  const startTime = new Date(attendance.from);
+  const timeDifference = Math.abs(currentTime - startTime);
+  const differenceInMinutes = Math.floor(timeDifference / 1000 / 60);
+  if (differenceInMinutes < 30) {
+    return res.status(400).json({
+      message:
+        "You can only check out 30 minutes after the start of the attendance",
+    });
+  }
+
   // Update the attendance
   try {
     const updatedAttendance = await attendanceModel.findByIdAndUpdate(
@@ -107,10 +118,8 @@ export const checkedOut = async (req, res) => {
     // Emit socket
     io.emit("checkedOut", { username: user.username, time: currentTime });
 
-    res
-      .status(200)
-      .json({ message: `${user.username} been checked out at ${currentTime}` });
+    return res.status(200).json({ message: "Checked out successfully" });
   } catch (error) {
-    res.status(400).json({ message: "Failed to check out" });
+    return res.status(500).json({ message: error.message });
   }
 };
