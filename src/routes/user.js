@@ -34,6 +34,16 @@ router.get("/get/:userId", async (req, res) => {
   }
 });
 
+// Get all users
+router.get("/get", async (req, res) => {
+  try {
+    const users = await userModel.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // Update the user
 router.patch(
   "/update/:userId",
