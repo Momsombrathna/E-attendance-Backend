@@ -26,9 +26,10 @@ export const checkedIn = async (req, res) => {
     (student) => student.studentId.toString() === studentId
   );
   if (!student)
-    return res
-      .status(401)
-      .json({ message: "You are not in the attendance list" });
+    return res.status(401).json({
+      message: "New user cannot checked in now, please wait for the next time.",
+    });
+
   if (student.checkedIn === true)
     return res.status(400).json({ message: "You are already checked in" });
 
@@ -43,16 +44,8 @@ export const checkedIn = async (req, res) => {
   // Check distance from database to that allowed to check in
   if (distance >= attendance.location_range) {
     let distanceStr = "";
-    if (distance >= 10) {
-      // Distance is in km
-      distanceStr = `${distance.toFixed(2)} km`;
-    } else if (distance < 1) {
-      // Distance is in meter
-      distanceStr = `${(distance * 1000).toFixed(2)} m`;
-    } else {
-      // Distance is in cm
-      distanceStr = `${(distance * 100000).toFixed(2)} cm`;
-    }
+    if (distance < 1) distanceStr = `${(distance * 1000).toFixed(2)} meters`;
+    else distanceStr = `${distance.toFixed(2)} kilometers`;
     return res
       .status(400)
       .json({ message: `You are ${distanceStr} far from the class` });

@@ -29,7 +29,12 @@ export const checkedOut = async (req, res) => {
     (student) => student.studentId.toString() === studentId
   );
   if (!student_id) {
-    res.status(401).json({ message: "You are not in the attendance list" });
+    res
+      .status(401)
+      .json({
+        message:
+          "New user cannot checked out now, please wait for the next time.",
+      });
   }
 
   // check if user is already checked out
