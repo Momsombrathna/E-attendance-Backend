@@ -1,8 +1,8 @@
 import model from "../../model/classModel.js";
-import userModel from "../../model/userModel.js";
+import Models from "../../model/userModel.js";
 
 const { classModel } = model;
-const { userModel } = userModel;
+const { userModel } = Models;
 
 export const userLeaveClass = async (req, res) => {
   const { classId } = req.params;
