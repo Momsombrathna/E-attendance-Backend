@@ -5,24 +5,30 @@ const { classModel } = models;
 const { userModel } = userModels;
 
 export const inviteUserByCode = async (req, res) => {
-  const { code } = req.body;
   const { userId } = req.params;
+  const { code } = req.body;
 
   try {
-    const classItem = await classModel.findOne({ code });
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
+    if (!code) {
+      return res.status(400).json({ message: "Code is required" });
+    }
+
+    const classItem = await classModel.findOne({ code });
     if (!classItem) {
-      return res.status(404).send({ message: "Class not found" });
+      return res.status(404).json({ message: "Class not found" });
     }
 
     if (classItem.students.includes(userId)) {
-      return res.status(400).send({ message: "User already in the class" });
+      return res.status(400).json({ message: "User already in the class" });
     }
 
-    // check class owner not allow to join
-    const user = await userModel.findById(userId);
-    if (classItem.owner === user._id) {
-      return res.status(400).send({ message: "Owner not allow to join" });
+    if (user._id.toString() === classItem.owner.toString()) {
+      return res.status(400).json({ message: "Owner cannot join the class" });
     }
 
     classItem.students.push(userId);
