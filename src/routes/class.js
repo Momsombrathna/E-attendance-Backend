@@ -5,6 +5,7 @@ import s3Client from "../configs/aws_s3.js";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { inviteToClass } from "../controller/class/inviteUserToClass.js";
 import { inviteUserByCode } from "../controller/class/inviteUserByCode.js";
+import { userLeaveClass } from "../controller/class/userLeaveClass.js";
 import multer from "multer";
 
 const router = express.Router();
@@ -106,6 +107,9 @@ router.delete("/kick-student/:classId", async (req, res) => {
     res.status(500).send({ message: err.message });
   }
 });
+
+// Leave the class
+router.delete("/leave-class/:classId", userLeaveClass);
 
 // Update the class
 router.patch(

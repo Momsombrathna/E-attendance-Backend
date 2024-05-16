@@ -2,6 +2,7 @@ import models from "../../model/classModel.js";
 import userModels from "../../model/userModel.js";
 
 const { classModel } = models;
+const { userModel } = userModels;
 
 export const inviteUserByCode = async (req, res) => {
   const { code } = req.body;
@@ -16,6 +17,12 @@ export const inviteUserByCode = async (req, res) => {
 
     if (classItem.students.includes(userId)) {
       return res.status(400).send({ message: "User already in the class" });
+    }
+
+    // check class owner not allow to join
+    const user = await userModel.findById(userId);
+    if (classItem.owner === user._id) {
+      return res.status(400).send({ message: "Owner not allow to join" });
     }
 
     classItem.students.push(userId);

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import models from "../../model/userModel.js";
 import attendance from "../../model/attendanceModel.js";
 import getDistanceFromLatLonInKm from "../../utils/CalculateDistance.js";
@@ -10,64 +11,95 @@ export const checkedIn = async (req, res) => {
   const { attendanceId } = req.params;
   const { studentId, latitude, longitude } = req.body;
 
-  // Find the attendance
-  const attendance = await attendanceModel
-    .findById(attendanceId)
-    .populate("classId");
-  if (!attendance)
-    return res.status(404).json({ message: "Attendance not found" });
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  // Find user
-  const user = await userModel.findById(studentId);
-  if (!user) return res.status(404).json({ message: "User not found" });
-
-  // Check if user is in the attendance and if already checked in
-  const student = attendance.attendances.find(
-    (student) => student.studentId.toString() === studentId
-  );
-  if (!student)
-    return res.status(401).json({
-      message: "New user cannot checked in now, please wait for the next time.",
-    });
-
-  if (student.checkedIn === true)
-    return res.status(400).json({ message: "You are already checked in" });
-
-  // Check if user is in the location
-  const distance = getDistanceFromLatLonInKm(
-    latitude,
-    longitude,
-    attendance.latitude,
-    attendance.longitude
-  );
-
-  // Check distance from database to that allowed to check in
-  if (distance >= attendance.location_range) {
-    let distanceStr = "";
-    if (distance < 1) distanceStr = `${(distance * 1000).toFixed(2)} meters`;
-    else distanceStr = `${distance.toFixed(2)} kilometers`;
-    return res
-      .status(400)
-      .json({ message: `You are ${distanceStr} far from the class` });
-  }
-
-  // Check if the time is within the attendance time
-  const currentTime = new Date();
-  const from = new Date(attendance.from);
-  const to = new Date(attendance.to);
-
-  if (currentTime < from)
-    return res.status(400).json({ message: "You are too early" });
-  if (currentTime > to)
-    return res.status(400).json({ message: "You are too late" });
-
-  // Check if 30 minutes have passed since the start of the attendance
-  const thirtyMinutes = 30 * 60 * 1000;
-  if (currentTime - from > thirtyMinutes)
-    return res.status(400).json({ message: "You are too late" });
-
-  // Update the attendance
   try {
+    // Find the attendance
+    const attendance = await attendanceModel
+      .findById(attendanceId)
+      .populate("classId")
+      .session(session);
+    if (!attendance) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ message: "Attendance not found" });
+    }
+
+    // Find user
+    const user = await userModel.findById(studentId).session(session);
+    if (!user) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if user is in the attendance list and if already checked in
+    const student = attendance.attendances.find(
+      (student) => student.studentId.toString() === studentId
+    );
+    if (!student) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(401).json({
+        message: "New user cannot check in now, please wait for the next time.",
+      });
+    }
+
+    if (student.checkedIn) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ message: "You are already checked in" });
+    }
+
+    // Check if user is within the allowed location range
+    const distance = getDistanceFromLatLonInKm(
+      latitude,
+      longitude,
+      attendance.latitude,
+      attendance.longitude
+    );
+
+    if (distance >= attendance.location_range) {
+      const distanceStr =
+        distance < 1
+          ? `${(distance * 1000).toFixed(2)} meters`
+          : `${distance.toFixed(2)} kilometers`;
+      await session.abortTransaction();
+      session.endSession();
+      return res
+        .status(400)
+        .json({ message: `You are ${distanceStr} far from the class` });
+    }
+
+    // Check if the current time is within the attendance time
+    const currentTime = new Date();
+    const from = new Date(attendance.from);
+    const to = new Date(attendance.to);
+
+    if (currentTime < from) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ message: "You are too early" });
+    }
+
+    if (currentTime > to) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({ message: "You are too late" });
+    }
+
+    // Check if 30 minutes have passed since the start of the attendance
+    const thirtyMinutes = 30 * 60 * 1000;
+    if (currentTime - from > thirtyMinutes) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({
+        message: "You are too late",
+      });
+    }
+
+    // Update the attendance
     const updatedAttendance = await attendanceModel.findByIdAndUpdate(
       attendanceId,
       {
@@ -79,16 +111,24 @@ export const checkedIn = async (req, res) => {
       {
         arrayFilters: [{ "elem.studentId": studentId }],
         new: true,
+        session,
       }
     );
 
-    if (!updatedAttendance) throw new Error();
+    if (!updatedAttendance) {
+      throw new Error("Failed to update attendance");
+    }
 
-    // Emit socket
+    await session.commitTransaction();
+    session.endSession();
+
+    // Emit socket event
     io.emit("checkedIn", { username: user.username, time: currentTime });
 
     return res.status(200).json({ message: "Checked in successfully" });
   } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
     return res.status(500).json({ message: error.message });
   }
 };
