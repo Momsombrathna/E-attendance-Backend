@@ -25,8 +25,16 @@ router.post("/create-class/:userId", async (req, res) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  // generate a random code
-  const code = Math.random().toString(36).substring(7);
+  let code;
+  let classItem;
+
+  do {
+    // generate a random code
+    code = Math.random().toString(36).substring(7);
+
+    // check if the code is already in the database
+    classItem = await classModel.findOne({ code });
+  } while (classItem);
 
   // Create a new class
   const newClass = new classModel({
@@ -155,5 +163,37 @@ router.patch(
     }
   }
 );
+
+// Refresh the class code
+router.patch("/refresh-code/:classId", async (req, res) => {
+  const { classId } = req.params;
+
+  try {
+    const classItem = await classModel.findById(classId);
+
+    if (!classItem) {
+      return res.status(404).send({ message: "Class not found" });
+    }
+
+    let code;
+    let newClass;
+
+    do {
+      // generate a random code
+      code = Math.random().toString(36).substring(7);
+
+      // check if the code is already in the database
+      newClass = await classModel.findOne({ code });
+    } while (newClass);
+
+    classItem.code = code;
+
+    await classItem.save();
+
+    res.send({ message: "Code has been refreshed" });
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+});
 
 export default router;
