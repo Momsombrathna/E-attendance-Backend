@@ -8,7 +8,8 @@ const { attendanceModel } = attendance;
 
 export const editTimeLine = async (req, res) => {
   const { attendanceId } = req.params;
-  const { userId, description, from, to, latitude, longitude } = req.body;
+  const { userId, description, from, to, latitude, longitude, location_range } =
+    req.body;
 
   // Find the attendance
   const attendance = await attendanceModel.findById(attendanceId);
@@ -43,6 +44,7 @@ export const editTimeLine = async (req, res) => {
       description,
       from,
       to,
+      location_range,
       latitude,
       longitude,
     },
