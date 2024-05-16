@@ -15,6 +15,23 @@ const upload = multer();
 const { classModel } = models;
 const { userModel } = userModels;
 
+// Get class by id
+router.get("/get-class/:classId", async (req, res) => {
+  const { classId } = req.params;
+
+  try {
+    const classItem = await classModel.findById(classId);
+
+    if (!classItem) {
+      return res.status(404).send({ message: "Class not found" });
+    }
+
+    res.send(classItem);
+  } catch (err) {
+    res.status(500).send({ message: err.message });
+  }
+});
+
 // Create the class by user
 router.post("/create-class/:userId", async (req, res) => {
   const { className, student } = req.body;
