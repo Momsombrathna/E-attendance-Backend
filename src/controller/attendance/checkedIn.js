@@ -89,16 +89,6 @@ export const checkedIn = async (req, res) => {
       return res.status(400).json({ message: "You are too late" });
     }
 
-    // Check if 30 minutes have passed since the start of the attendance
-    const thirtyMinutes = 30 * 60 * 1000;
-    if (currentTime - from > thirtyMinutes) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({
-        message: "You are too late",
-      });
-    }
-
     // Update the attendance
     const updatedAttendance = await attendanceModel.findByIdAndUpdate(
       attendanceId,
