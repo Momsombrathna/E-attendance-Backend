@@ -34,7 +34,7 @@ router.get("/get-class/:classId", async (req, res) => {
 
 // Create the class by user
 router.post("/create-class/:userId", async (req, res) => {
-  const { className, student } = req.body;
+  const { className } = req.body;
 
   // Find the user
   const user = await userModel.findById(req.params.userId);
@@ -58,7 +58,13 @@ router.post("/create-class/:userId", async (req, res) => {
     className,
     owner: user._id,
     ownerName: user.username,
-    students: [student],
+    students: [
+      {
+        studentId: user._id,
+        studentName: user.username,
+        studentProfile: user.profile,
+      },
+    ],
     code,
   });
 
@@ -75,7 +81,7 @@ router.post("/create-class/:userId", async (req, res) => {
 router.post("/invite-student/:classId", inviteToClass);
 
 // Invite the user by code
-router.post("/invite-by-code/:userId", inviteUserByCode);
+router.post("/invite-by-code", inviteUserByCode);
 
 // Delete the class
 router.delete("/delete-class/:classId", async (req, res) => {

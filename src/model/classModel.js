@@ -15,7 +15,23 @@ const classSchema = new mongoose.Schema({
   },
   students: [
     {
-      type: String,
+      studentId: {
+        type: String,
+        required: true,
+      },
+      studentName: {
+        type: String,
+        required: true,
+      },
+
+      studentProfile: {
+        type: String,
+        required: true,
+      },
+      joined: {
+        type: Date,
+        default: Date.now,
+      },
     },
   ],
   classProfile: {

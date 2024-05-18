@@ -5,36 +5,42 @@ const { classModel } = models;
 const { userModel } = userModels;
 
 export const inviteUserByCode = async (req, res) => {
-  const { userId } = req.params;
-  const { code } = req.body;
+  const { code, userId } = req.body;
 
   try {
+    // Find the class by code
+    const classItem = await classModel
+      .findOne({ code })
+      .populate("owner", "username")
+      .populate("students.studentId", "username")
+      .exec();
+    if (!classItem) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+
+    // Find the user
     const user = await userModel.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (!code) {
-      return res.status(400).json({ message: "Code is required" });
-    }
-
-    const classItem = await classModel.findOne({ code });
-    if (!classItem) {
-      return res.status(404).json({ message: "Class not found" });
-    }
-
-    if (classItem.students.includes(userId)) {
+    // Check if user already in the class
+    const isUserInClass = classItem.students.find(
+      (student) => student.studentId.toString() === userId
+    );
+    if (isUserInClass) {
       return res.status(400).json({ message: "User already in the class" });
     }
 
-    if (user._id.toString() === classItem.owner.toString()) {
-      return res.status(400).json({ message: "Owner cannot join the class" });
-    }
+    // Add user to the class
+    classItem.students.push({
+      studentId: userId,
+      studentName: user.username,
+      studentProfile: user.profile,
+    });
 
-    classItem.students.push(userId);
     await classItem.save();
-
-    res.status(200).json(classItem);
+    res.send(classItem);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
