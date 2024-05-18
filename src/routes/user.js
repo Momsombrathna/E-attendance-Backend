@@ -132,7 +132,7 @@ router.get("/get-students-class/:userId", async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const classList = await classModel.find({ students: userId });
+    const classList = await classModel.find({ "students.studentId": userId });
 
     if (!classList) {
       return res.status(404).json({ message: "Class not found" });
