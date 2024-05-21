@@ -20,7 +20,7 @@ router.get("/get-class/:classId", async (req, res) => {
   const { classId } = req.params;
 
   try {
-    const classItem = await classModel.findById(classId);
+    const classItem = await classModel.findOne({ _id: classId });
 
     if (!classItem) {
       return res.status(404).send({ message: "Class not found" });
@@ -124,16 +124,18 @@ router.delete("/kick-student/:classId", async (req, res) => {
     if (classItem.owner.toString() !== userId) {
       return res
         .status(403)
-        .send({ message: "You do not have permission to kick the student" });
+        .send({ message: "You do not have permission to kick this student" });
     }
 
     classItem.students = classItem.students.filter(
-      (student) => student.userId.toString() !== studentId
+      (student) => student.studentId !== studentId
     );
 
     await classItem.save();
 
-    res.send({ message: "Student has been kicked from the class" });
+    res.send({
+      message: "Student has been kicked from the class",
+    });
   } catch (err) {
     res.status(500).send({ message: err.message });
   }
