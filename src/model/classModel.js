@@ -37,7 +37,7 @@ const classSchema = new mongoose.Schema({
   classProfile: {
     type: String,
     default:
-      "https://res.cloudinary.com/dugfn9ryq/image/upload/v1709975141/wzeirraamssqm47b3mmu.png",
+      "https://dl.dropboxusercontent.com/scl/fi/ge2sl491yvwgv5xnj6km4/9176723.jpg?rlkey=1vsqekshlma82ghzabvbmkvnm&st=ttdxp6s3&dl=0",
   },
   code: {
     type: String,
