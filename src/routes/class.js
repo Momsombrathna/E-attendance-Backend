@@ -215,7 +215,10 @@ router.patch("/refresh-code/:classId", async (req, res) => {
 
     await classItem.save();
 
-    res.send({ message: "Code has been refreshed" });
+    // response data is saved class with the message
+    res.send({
+      code: classItem.code,
+    });
   } catch (err) {
     res.status(500).send({ message: err.message });
   }
