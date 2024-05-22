@@ -44,7 +44,9 @@ export const createTimeLine = async (req, res) => {
       .map((student) => {
         if (student) {
           return {
-            studentId: student,
+            studentId: user._id,
+            studentName: user.username,
+            studentProfile: user.profile,
             checkedIn: false,
             checkedInTime: null,
             checkedOut: false,
