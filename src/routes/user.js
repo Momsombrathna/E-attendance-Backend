@@ -138,7 +138,12 @@ router.get("/get-students-class/:userId", async (req, res) => {
       return res.status(404).json({ message: "Class not found" });
     }
 
-    res.send(classList);
+    // Filter out if userId === owner
+    const filteredClassList = classList.filter(
+      (classItem) => classItem.owner.toString() !== userId
+    );
+
+    res.send(filteredClassList);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
