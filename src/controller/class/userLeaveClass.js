@@ -15,8 +15,13 @@ export const userLeaveClass = async (req, res) => {
       return res.status(404).send({ message: "Class not found" });
     }
 
-    if (!classItem.students.includes(userId)) {
-      return res.status(400).send({ message: "User not in the class" });
+    const studentId = classItem.students.find(
+      (student) => student.studentId === userId
+    );
+    if (!studentId) {
+      return res
+        .status(400)
+        .send({ message: "You are not a student of this class" });
     }
 
     // check class owner not allow to leave
@@ -26,7 +31,7 @@ export const userLeaveClass = async (req, res) => {
     }
 
     classItem.students = classItem.students.filter(
-      (student) => student !== userId
+      (student) => student.studentId !== userId
     );
     await classItem.save();
 
