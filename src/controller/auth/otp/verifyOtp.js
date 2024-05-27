@@ -9,12 +9,16 @@ export const verifyOtp = async (req, res) => {
   const userOTP = await userOTPModel.findOne({ email }).sort({ createdAt: -1 });
 
   if (!userOTP) {
-    return res.status(404).send("OTP not found 404!");
+    return res.status(404).send({
+      message: "OTP not found 404!",
+    });
   }
 
   // Check if OTP is valid
   if (userOTP.otp !== otp) {
-    return res.status(400).send("Invalid OTP 400!");
+    return res.status(400).send({
+      message: "Invalid OTP 400!",
+    });
   }
 
   // Check if OTP is expired
