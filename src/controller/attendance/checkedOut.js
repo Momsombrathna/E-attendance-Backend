@@ -61,6 +61,28 @@ export const checkedOut = async (req, res) => {
       return res.status(400).json({ message: "You are not checked in yet" });
     }
 
+    // Check if the current time is within the attendance time range 15 minutes before and after
+    const currentTime = new Date();
+    const from = new Date(attendance.from);
+    const to = new Date(attendance.to);
+    const fifteenMinutes = 15 * 60 * 1000;
+
+    if (currentTime < from - fifteenMinutes) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({
+        message: "Check in only available 15 minutes before the class starts",
+      });
+    }
+
+    if (currentTime > to + fifteenMinutes) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({
+        message: "Check in only available 15 minutes before the class ends",
+      });
+    }
+
     // Check if user is within the allowed location range
     const distance = getDistanceFromLatLonInKm(
       latitude,
@@ -81,23 +103,6 @@ export const checkedOut = async (req, res) => {
         .json({ message: `You are ${distanceStr} far from the class` });
     }
 
-    // Check if the current time is within the attendance time
-    const currentTime = new Date();
-    const from = new Date(attendance.from);
-    const to = new Date(attendance.to);
-
-    if (currentTime < from) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({ message: "You are too early" });
-    }
-
-    if (currentTime > to) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({ message: "You are too late" });
-    }
-
     // Check if 30 minutes have passed since the start of the attendance
     const thirtyMinutes = 30 * 60 * 1000;
     if (currentTime - from < thirtyMinutes) {
@@ -105,7 +110,7 @@ export const checkedOut = async (req, res) => {
       session.endSession();
       return res.status(400).json({
         message:
-          "You can only check out 30 minutes after the start of the attendance",
+          "You can only check out 30 minutes after the start of the class starts",
       });
     }
 

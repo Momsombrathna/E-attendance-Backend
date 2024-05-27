@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
   profile: {
     type: String,
     default:
-      "https://dl.dropboxusercontent.com/scl/fi/o4tmtdkxzcw7x5qyzfm6r/blank-profile-picture-973460_1920.png?rlkey=q05pdrg3v742cvpcc2l0jnuah&st=azsn5cqm&dl=0",
+      "https://dl.dropboxusercontent.com/scl/fi/kmcuuyyb9i35tpee4euoj/blank-avatar-photo-place-holder-600nw-1095249842.png?rlkey=lp2ncl7o29yexj0opxn00eh7g&st=c15s5s98&dl=0",
   },
   tokens: [
     {
