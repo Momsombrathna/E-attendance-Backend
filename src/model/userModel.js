@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
   profile: {
     type: String,
     default:
-      "https://dl.dropboxusercontent.com/scl/fi/kmcuuyyb9i35tpee4euoj/blank-avatar-photo-place-holder-600nw-1095249842.png?rlkey=lp2ncl7o29yexj0opxn00eh7g&st=c15s5s98&dl=0",
+      "https://res.cloudinary.com/dugfn9ryq/image/upload/v1709959639/rjapwzgokwhog42nilql.jpg",
   },
   tokens: [
     {
