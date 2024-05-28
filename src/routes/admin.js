@@ -22,7 +22,7 @@ const { studentCardModel } = models;
 router.get("/all-users", adminVerifyToken, async (req, res) => {
   try {
     const users = await User.find();
-    res.send(users);
+    res.send(users.reverse());
   } catch (err) {
     res.status(500).send({
       message: err.message,
@@ -37,7 +37,7 @@ router.get("/get-user/:userId", adminVerifyToken, getUser);
 router.get("/all-classes", adminVerifyToken, async function (req, res) {
   try {
     const classes = await classModel.find();
-    res.send(classes);
+    res.send(classes.reverse());
   } catch (err) {
     res.status(500).send({
       message: err.message,

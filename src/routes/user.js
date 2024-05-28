@@ -121,7 +121,7 @@ router.get("/get-class-owner/:userId", async (req, res) => {
       return res.status(404).json({ message: "Class not found" });
     }
 
-    res.send(classList);
+    res.send(classList.reverse());
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -143,7 +143,7 @@ router.get("/get-students-class/:userId", async (req, res) => {
       (classItem) => classItem.owner.toString() !== userId
     );
 
-    res.send(filteredClassList);
+    res.send(filteredClassList.reverse());
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
