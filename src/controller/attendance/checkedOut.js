@@ -66,20 +66,22 @@ export const checkedOut = async (req, res) => {
     const from = new Date(attendance.from);
     const to = new Date(attendance.to);
     const fifteenMinutes = 15 * 60 * 1000;
-
-    if (currentTime < from - fifteenMinutes) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({
-        message: "Check in only available 15 minutes before the class starts",
-      });
-    }
+    const thirtyMinutes = 30 * 60 * 1000;
 
     if (currentTime > to + fifteenMinutes) {
       await session.abortTransaction();
       session.endSession();
       return res.status(400).json({
-        message: "Check in only available 15 minutes before the class ends",
+        message: "Check out only available 15 minutes before the class ends",
+      });
+    }
+
+    // Check if 30 minutes have passed since the start of the attendance
+    if (currentTime - from < thirtyMinutes) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({
+        message: "You can only check out 30 minutes after the class starts",
       });
     }
 
@@ -101,17 +103,6 @@ export const checkedOut = async (req, res) => {
       return res
         .status(400)
         .json({ message: `You are ${distanceStr} far from the class` });
-    }
-
-    // Check if 30 minutes have passed since the start of the attendance
-    const thirtyMinutes = 30 * 60 * 1000;
-    if (currentTime - from < thirtyMinutes) {
-      await session.abortTransaction();
-      session.endSession();
-      return res.status(400).json({
-        message:
-          "You can only check out 30 minutes after the start of the class starts",
-      });
     }
 
     // Update the attendance

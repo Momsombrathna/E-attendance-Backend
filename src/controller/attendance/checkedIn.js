@@ -66,12 +66,10 @@ export const checkedIn = async (req, res) => {
       });
     }
 
-    if (currentTime > to + fifteenMinutes) {
+    if (currentTime > to) {
       await session.abortTransaction();
       session.endSession();
-      return res.status(400).json({
-        message: "Check in only available 15 minutes before the class ends",
-      });
+      return res.status(400).json({ message: "Class has ended" });
     }
 
     // Check if user is within the allowed location range
