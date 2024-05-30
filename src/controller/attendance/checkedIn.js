@@ -109,7 +109,9 @@ export const checkedIn = async (req, res) => {
     );
 
     if (!updatedAttendance) {
-      throw new Error("Failed to update attendance");
+      throw new Error({
+        message: "Failed to check in, please try again later",
+      });
     }
 
     await session.commitTransaction();
@@ -118,7 +120,7 @@ export const checkedIn = async (req, res) => {
     // Emit socket event
     io.emit("checkedIn", { username: user.username, time: currentTime });
 
-    return res.status(200).json({ message: "Checked in successfully" });
+    return res.status(200).send("Checked in successfully");
   } catch (error) {
     await session.abortTransaction();
     session.endSession();

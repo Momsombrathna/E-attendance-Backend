@@ -132,7 +132,7 @@ export const checkedOut = async (req, res) => {
     // Emit socket event
     io.emit("checkedOut", { username: user.username, time: currentTime });
 
-    return res.status(200).json({ message: "Checked out successfully" });
+    return res.status(200).send("Checked out successfully");
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
