@@ -42,7 +42,7 @@ export const checkedIn = async (req, res) => {
       await session.abortTransaction();
       session.endSession();
       return res.status(401).json({
-        message: "New user cannot check in now, please wait for the next time.",
+        message: "you are not in the attendance list",
       });
     }
 
