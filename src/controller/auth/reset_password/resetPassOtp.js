@@ -69,6 +69,9 @@ export const requestResetPassOtp = async (req, res) => {
       savedOTP,
     });
   } catch (error) {
-    res.status(500).send(`Sending OTP failed: ${error}`);
+    res.status(500).send({
+      message: "Internal server error 500!",
+      error,
+    });
   }
 };
